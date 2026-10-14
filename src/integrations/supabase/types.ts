@@ -14,16 +14,294 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      customers: {
+        Row: {
+          address: string | null
+          city: string | null
+          created_at: string
+          id: string
+          instagram_handle: string | null
+          name: string
+          phone: string
+          user_id: string | null
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          id?: string
+          instagram_handle?: string | null
+          name: string
+          phone: string
+          user_id?: string | null
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          id?: string
+          instagram_handle?: string | null
+          name?: string
+          phone?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      expenses: {
+        Row: {
+          amount: number
+          date: string
+          id: string
+          linked_item_id: string | null
+          note: string | null
+          type: string
+        }
+        Insert: {
+          amount: number
+          date?: string
+          id?: string
+          linked_item_id?: string | null
+          note?: string | null
+          type: string
+        }
+        Update: {
+          amount?: number
+          date?: string
+          id?: string
+          linked_item_id?: string | null
+          note?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expenses_linked_item_id_fkey"
+            columns: ["linked_item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      item_costs: {
+        Row: {
+          cost_price: number
+          item_id: string
+        }
+        Insert: {
+          cost_price?: number
+          item_id: string
+        }
+        Update: {
+          cost_price?: number
+          item_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "item_costs_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: true
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      items: {
+        Row: {
+          category: string
+          condition_notes: string | null
+          created_at: string
+          date_sourced: string | null
+          description: string | null
+          id: string
+          measurements: Json
+          photos: string[]
+          sell_price: number
+          size: string
+          source_bazaar: string | null
+          status: string
+          subcategory: string | null
+          title: string
+        }
+        Insert: {
+          category?: string
+          condition_notes?: string | null
+          created_at?: string
+          date_sourced?: string | null
+          description?: string | null
+          id?: string
+          measurements?: Json
+          photos?: string[]
+          sell_price?: number
+          size?: string
+          source_bazaar?: string | null
+          status?: string
+          subcategory?: string | null
+          title: string
+        }
+        Update: {
+          category?: string
+          condition_notes?: string | null
+          created_at?: string
+          date_sourced?: string | null
+          description?: string | null
+          id?: string
+          measurements?: Json
+          photos?: string[]
+          sell_price?: number
+          size?: string
+          source_bazaar?: string | null
+          status?: string
+          subcategory?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
+      leads: {
+        Row: {
+          customer_id: string | null
+          first_contact_at: string
+          id: string
+          item_id: string | null
+          last_reply_at: string | null
+          note: string | null
+          source: string
+          status: string
+        }
+        Insert: {
+          customer_id?: string | null
+          first_contact_at?: string
+          id?: string
+          item_id?: string | null
+          last_reply_at?: string | null
+          note?: string | null
+          source?: string
+          status?: string
+        }
+        Update: {
+          customer_id?: string | null
+          first_contact_at?: string
+          id?: string
+          item_id?: string | null
+          last_reply_at?: string | null
+          note?: string | null
+          source?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          advance_paid: number
+          advance_status: string
+          balance_due: number | null
+          code: string
+          courier: string | null
+          customer_id: string
+          id: string
+          item_id: string | null
+          order_date: string
+          price: number
+          status: string
+          tracking_number: string | null
+        }
+        Insert: {
+          advance_paid?: number
+          advance_status?: string
+          balance_due?: number | null
+          code?: string
+          courier?: string | null
+          customer_id: string
+          id?: string
+          item_id?: string | null
+          order_date?: string
+          price?: number
+          status?: string
+          tracking_number?: string | null
+        }
+        Update: {
+          advance_paid?: number
+          advance_status?: string
+          balance_due?: number | null
+          code?: string
+          courier?: string | null
+          customer_id?: string
+          id?: string
+          item_id?: string | null
+          order_date?: string
+          price?: number
+          status?: string
+          tracking_number?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      can_see_finance: { Args: { _user_id: string }; Returns: boolean }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_staff: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "team" | "finance"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +428,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "team", "finance"],
+    },
   },
 } as const
