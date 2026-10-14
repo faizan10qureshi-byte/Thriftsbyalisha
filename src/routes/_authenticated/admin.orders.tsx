@@ -15,11 +15,11 @@ function Orders() {
   const refresh = useRefreshAdmin();
   const [filter, setFilter] = useState("All");
 
-  const update = async (id: string, patch: Record<string, unknown>, itemId?: string | null) => {
+  const update = async (id: string, patch: { status?: string; advance_paid?: number; advance_status?: string; courier?: string; tracking_number?: string | null }, itemId?: string | null) => {
     const { error } = await supabase.from("orders").update(patch).eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     if (itemId && patch.status) {
-      const s = patch.status as string;
+      const s = patch.status;
       const itemStatus = s === "Cancelled" ? "Available" : ["Shipped", "Delivered"].includes(s) ? "Sold" : "Reserved";
       await supabase.from("items").update({ status: itemStatus }).eq("id", itemId);
     }
@@ -51,7 +51,7 @@ function Orders() {
                     <Input type="number" defaultValue={o.advance_paid} className="h-8 w-24" onBlur={(e) => +e.target.value !== o.advance_paid && update(o.id, { advance_paid: +e.target.value })} />
                     <button onClick={() => update(o.id, { advance_status: o.advance_status === "Received" ? "Pending" : "Received" })} className="mt-1"><StatusPill status={o.advance_status} /></button>
                   </td>
-                  <td className={`p-3 font-semibold ${o.balance_due > 0 ? "text-primary" : "text-success"}`}>{pkr(o.balance_due)}</td>
+                  <td className={`p-3 font-semibold ${(o.balance_due ?? 0) > 0 ? "text-primary" : "text-success"}`}>{pkr(o.balance_due)}</td>
                   <td className="p-3">
                     <select defaultValue={o.courier ?? "TCS"} onChange={(e) => update(o.id, { courier: e.target.value })} className="mb-1 h-8 rounded-md border bg-background px-2 text-xs">
                       {["TCS", "Leopards", "M&P", "Trax", "PostEx"].map((c) => <option key={c}>{c}</option>)}

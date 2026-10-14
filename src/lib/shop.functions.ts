@@ -32,7 +32,7 @@ export const placeOrder = createServerFn({ method: "POST" })
     if (customerId) {
       await supabaseAdmin.from("customers").update({
         name: data.name, address: data.address, city: data.city,
-        instagram_handle: data.instagram || undefined,
+        ...(data.instagram ? { instagram_handle: data.instagram } : {}),
         user_id: existing?.user_id ?? data.userId ?? null,
       }).eq("id", customerId);
     } else {
