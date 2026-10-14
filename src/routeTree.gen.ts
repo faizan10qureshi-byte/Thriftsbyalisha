@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AccountRouteImport } from './routes/account'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -17,11 +18,16 @@ import { Route as CartRouteImport } from './routes/cart'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as TrackRouteImport } from './routes/track'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as ItemIdRouteImport } from './routes/item.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -59,6 +65,11 @@ const TrackRoute = TrackRouteImport.update({
   path: '/track',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const ItemIdRoute = ItemIdRouteImport.update({
   id: '/item/$id',
   path: '/item/$id',
@@ -74,6 +85,7 @@ export interface FileRoutesByFullPath {
   '/faq': typeof FaqRoute
   '/shop': typeof ShopRoute
   '/track': typeof TrackRoute
+  '/admin': typeof AuthenticatedAdminRoute
   '/item/$id': typeof ItemIdRoute
 }
 export interface FileRoutesByTo {
@@ -85,11 +97,13 @@ export interface FileRoutesByTo {
   '/faq': typeof FaqRoute
   '/shop': typeof ShopRoute
   '/track': typeof TrackRoute
+  '/admin': typeof AuthenticatedAdminRoute
   '/item/$id': typeof ItemIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/account': typeof AccountRoute
   '/auth': typeof AuthRoute
@@ -97,6 +111,7 @@ export interface FileRoutesById {
   '/faq': typeof FaqRoute
   '/shop': typeof ShopRoute
   '/track': typeof TrackRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/item/$id': typeof ItemIdRoute
 }
 export interface FileRouteTypes {
@@ -110,6 +125,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/shop'
     | '/track'
+    | '/admin'
     | '/item/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -121,10 +137,12 @@ export interface FileRouteTypes {
     | '/faq'
     | '/shop'
     | '/track'
+    | '/admin'
     | '/item/$id'
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
     | '/about'
     | '/account'
     | '/auth'
@@ -132,11 +150,13 @@ export interface FileRouteTypes {
     | '/faq'
     | '/shop'
     | '/track'
+    | '/_authenticated/admin'
     | '/item/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
   AccountRoute: typeof AccountRoute
   AuthRoute: typeof AuthRoute
@@ -154,6 +174,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -205,6 +232,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TrackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/item/$id': {
       id: '/item/$id'
       path: '/item/$id'
@@ -215,8 +249,20 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AboutRoute: AboutRoute,
   AccountRoute: AccountRoute,
   AuthRoute: AuthRoute,
