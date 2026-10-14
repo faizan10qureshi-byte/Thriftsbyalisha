@@ -71,7 +71,7 @@ function Shop() {
           </div>
           <div className="flex flex-wrap items-center gap-4">
             <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Up to {pkr(max)}</span>
-            <Slider value={[max]} min={1000} max={5000} step={100} onValueChange={(v) => setMax(v[0])} className="max-w-xs" />
+            <Slider value={[max]} min={1000} max={5000} step={100} onValueChange={(v) => setMax(v[0] ?? 5000)} className="max-w-xs" />
             <label className="ml-auto flex items-center gap-2 text-sm">
               <input type="checkbox" checked={showSold} onChange={(e) => setShowSold(e.target.checked)} className="accent-primary" /> Show sold pieces
             </label>

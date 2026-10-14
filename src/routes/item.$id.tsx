@@ -41,7 +41,7 @@ function ItemPage() {
   const measurements = Object.entries((item.measurements ?? {}) as Record<string, string>);
 
   const reserve = () => {
-    add({ id: item.id, title: item.title, price: item.sell_price, size: item.size, photo: photos[0] });
+    add({ id: item.id, title: item.title, price: item.sell_price, size: item.size, photo: photos[0] ?? "" });
     toast.success("Added to your bag ✨");
     navigate({ to: "/cart" });
   };

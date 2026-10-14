@@ -130,9 +130,10 @@ function ItemDialog({ draft, onClose, onSaved }: { draft: Draft; onClose: () => 
     try { await saveItem(d); toast.success("Saved"); onSaved(); } catch (err) { toast.error((err as Error).message); } finally { setBusy(false); }
   };
   const del = async () => {
-    if (!d.id || !confirm("Delete this item?")) return;
+    if (!d.id || !confirm("Delete this item?")) return undefined;
     const { error } = await supabase.from("items").delete().eq("id", d.id);
     if (error) toast.error(error.message); else onSaved();
+    return undefined;
   };
 
   return (
@@ -187,7 +188,7 @@ function BulkDialog({ onClose, onSaved }: { onClose: () => void; onSaved: () => 
 
   const save = async () => {
     const valid = rows.filter((r) => r.title.trim());
-    if (!valid.length) return toast.error("Add at least one item");
+    if (!valid.length) { toast.error("Add at least one item"); return; }
     setBusy(true);
     try {
       for (const r of valid) {

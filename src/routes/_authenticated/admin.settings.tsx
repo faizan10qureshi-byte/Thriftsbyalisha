@@ -29,7 +29,7 @@ function Settings() {
     e.preventDefault();
     try {
       const r = await grant({ data: { email, role } });
-      if (!r.ok) return toast.error(r.error);
+      if (!r.ok) { toast.error(r.error); return; }
       toast.success("Access granted"); setEmail(""); team.refetch();
     } catch (err) { toast.error((err as Error).message); }
   };

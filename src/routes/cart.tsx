@@ -42,7 +42,7 @@ function Cart() {
 
   const goPay = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!PK_PHONE.test(form.phone.trim())) return toast.error("Phone should look like 0300-1234567");
+    if (!PK_PHONE.test(form.phone.trim())) { toast.error("Phone should look like 0300-1234567"); return; }
     setStep("pay");
   };
 

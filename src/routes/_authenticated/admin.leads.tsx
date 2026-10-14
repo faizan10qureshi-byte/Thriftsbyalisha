@@ -90,7 +90,7 @@ function AddLead({ onClose, onSaved }: { onClose: () => void; onSaved: () => voi
     let cid = customers.data?.find((c) => c.phone === phone)?.id;
     if (!cid) {
       const { data, error } = await supabase.from("customers").insert({ name: f.name, phone, instagram_handle: f.instagram || null }).select("id").single();
-      if (error) return toast.error(error.message);
+      if (error) { toast.error(error.message); return; }
       cid = data.id;
     }
     const { error } = await supabase.from("leads").insert({ customer_id: cid, item_id: f.item_id || null, source: f.source, note: f.note || null });

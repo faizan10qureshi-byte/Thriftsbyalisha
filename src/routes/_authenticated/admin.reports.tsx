@@ -32,7 +32,7 @@ function Reports() {
       <PageHead title="Reports" />
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Stat label="Total sales" value={pkr(sales.reduce((s, o) => s + o.price, 0))} hint={`${sales.length} orders`} />
-        <Stat label="Best category" value={best ? best[0][0].toUpperCase() + best[0].slice(1) : "—"} hint={best ? `${best[1]} sold` : ""} />
+        <Stat label="Best category" value={best ? best[0].charAt(0).toUpperCase() + best[0].slice(1) : "—"} hint={best ? `${best[1]} sold` : ""} />
         <Stat label="Repeat rate" value={buyers ? `${Math.round((repeat / buyers) * 100)}%` : "—"} hint={`${repeat} of ${buyers} buyers`} />
         <Stat label="Unanswered leads" value={String(stale.length)} />
       </div>
