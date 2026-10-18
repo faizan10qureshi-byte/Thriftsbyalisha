@@ -103,32 +103,83 @@
 }
 
 @layer base {
-  * { border-color: var(--color-border); }
+  * {
+    border-color: var(--color-border);
+  }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
   }
-  h1, h2, h3, .font-display { font-family: var(--font-display); letter-spacing: -0.01em; }
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
 }
 
-@utility bg-gradient-blush { background-image: var(--gradient-blush); }
-@utility bg-gradient-cta { background-image: var(--gradient-cta); }
+@utility bg-gradient-blush {
+  background-image: var(--gradient-blush);
+}
+@utility bg-gradient-cta {
+  background-image: var(--gradient-cta);
+}
 
 @utility polaroid {
   background: var(--card);
   padding: 0.6rem 0.6rem 1rem;
   border-radius: 1rem;
   box-shadow: var(--shadow-soft-v);
-  transition: transform 0.35s cubic-bezier(.2,.8,.2,1), box-shadow 0.35s;
-  &:hover { transform: translateY(-6px) scale(1.02); box-shadow: var(--shadow-lift-v); }
+  transition:
+    transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.35s;
+  &:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: var(--shadow-lift-v);
+  }
 }
 
-@keyframes hanger-sway { 0%,100% { transform: rotate(-12deg); } 50% { transform: rotate(12deg); } }
-@utility animate-hanger { animation: hanger-sway 1.4s ease-in-out infinite; transform-origin: top center; }
+@keyframes hanger-sway {
+  0%,
+  100% {
+    transform: rotate(-12deg);
+  }
+  50% {
+    transform: rotate(12deg);
+  }
+}
+@utility animate-hanger {
+  animation: hanger-sway 1.4s ease-in-out infinite;
+  transform-origin: top center;
+}
 
-@keyframes heart-pop { 0% { transform: scale(1); } 40% { transform: scale(1.45); } 100% { transform: scale(1); } }
-@utility animate-heart { animation: heart-pop 0.5s ease-out; }
+@keyframes heart-pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.45);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@utility animate-heart {
+  animation: heart-pop 0.5s ease-out;
+}
 
-@keyframes sparkle-up { 0% { opacity: 1; transform: translateY(0) scale(.6); } 100% { opacity: 0; transform: translateY(-28px) scale(1.2); } }
-@utility animate-sparkle { animation: sparkle-up 0.8s ease-out forwards; }
+@keyframes sparkle-up {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(0.6);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-28px) scale(1.2);
+  }
+}
+@utility animate-sparkle {
+  animation: sparkle-up 0.8s ease-out forwards;
+}

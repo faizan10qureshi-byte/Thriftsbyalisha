@@ -20,9 +20,15 @@ export const Route = createFileRoute("/item/$id")({
     meta: loaderData
       ? [
           { title: `${loaderData.title} — thriftsbyalisha` },
-          { name: "description", content: `Thrifted ${loaderData.title}, size ${loaderData.size}, ${pkr(loaderData.price)}. One piece only.` },
+          {
+            name: "description",
+            content: `Thrifted ${loaderData.title}, size ${loaderData.size}, ${pkr(loaderData.price)}. One piece only.`,
+          },
           { property: "og:title", content: loaderData.title },
-          { property: "og:description", content: `Size ${loaderData.size} · ${pkr(loaderData.price)} · thriftsbyalisha` },
+          {
+            property: "og:description",
+            content: `Size ${loaderData.size} · ${pkr(loaderData.price)} · thriftsbyalisha`,
+          },
         ]
       : [{ title: "Item unavailable — thriftsbyalisha" }, { name: "robots", content: "noindex" }],
   }),
@@ -41,7 +47,13 @@ function ItemPage() {
   const measurements = Object.entries((item.measurements ?? {}) as Record<string, string>);
 
   const reserve = () => {
-    add({ id: item.id, title: item.title, price: item.sell_price, size: item.size, photo: photos[0] ?? "" });
+    add({
+      id: item.id,
+      title: item.title,
+      price: item.sell_price,
+      size: item.size,
+      photo: photos[0] ?? "",
+    });
     toast.success("Added to your bag ✨");
     navigate({ to: "/cart" });
   };
@@ -51,12 +63,22 @@ function ItemPage() {
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-10 md:grid-cols-2">
         <div>
           <div className="polaroid">
-            <img src={photoUrl(photos[active])} alt={item.title} width={768} height={960} className="aspect-[4/5] w-full rounded-xl object-cover" />
+            <img
+              src={photoUrl(photos[active])}
+              alt={item.title}
+              width={768}
+              height={960}
+              className="aspect-[4/5] w-full rounded-xl object-cover"
+            />
           </div>
           {photos.length > 1 && (
             <div className="mt-3 flex gap-2">
               {photos.map((p, i) => (
-                <button key={i} onClick={() => setActive(i)} className={`h-20 w-16 overflow-hidden rounded-xl border-2 ${i === active ? "border-primary" : "border-transparent"}`}>
+                <button
+                  key={i}
+                  onClick={() => setActive(i)}
+                  className={`h-20 w-16 overflow-hidden rounded-xl border-2 ${i === active ? "border-primary" : "border-transparent"}`}
+                >
                   <img src={photoUrl(p)} alt="" className="h-full w-full object-cover" />
                 </button>
               ))}
@@ -64,8 +86,12 @@ function ItemPage() {
           )}
         </div>
         <div>
-          <Link to="/shop" className="text-sm text-muted-foreground hover:text-primary">← Back to shop</Link>
-          <p className="mt-4 text-xs font-bold uppercase tracking-[0.25em] text-primary">{item.subcategory ?? item.category}</p>
+          <Link to="/shop" className="text-sm text-muted-foreground hover:text-primary">
+            ← Back to shop
+          </Link>
+          <p className="mt-4 text-xs font-bold uppercase tracking-[0.25em] text-primary">
+            {item.subcategory ?? item.category}
+          </p>
           <h1 className="mt-1 text-5xl font-semibold">{item.title}</h1>
           <div className="mt-3 flex items-center gap-3">
             <span className="text-2xl font-extrabold text-primary">{pkr(item.sell_price)}</span>
@@ -77,21 +103,48 @@ function ItemPage() {
             <table className="mt-3 w-full text-sm">
               <tbody>
                 {measurements.map(([k, v]) => (
-                  <tr key={k} className="border-t first:border-0"><td className="py-2 text-muted-foreground">{k}</td><td className="py-2 text-right font-semibold">{v}</td></tr>
+                  <tr key={k} className="border-t first:border-0">
+                    <td className="py-2 text-muted-foreground">{k}</td>
+                    <td className="py-2 text-right font-semibold">{v}</td>
+                  </tr>
                 ))}
               </tbody>
             </table>
-            {item.condition_notes && <p className="mt-3 rounded-xl bg-muted px-3 py-2 text-sm"><b>Condition:</b> {item.condition_notes}</p>}
+            {item.condition_notes && (
+              <p className="mt-3 rounded-xl bg-muted px-3 py-2 text-sm">
+                <b>Condition:</b> {item.condition_notes}
+              </p>
+            )}
           </div>
           <div className="mt-6 flex gap-3">
-            <Button variant="hero" size="lg" className="flex-1" disabled={item.status !== "Available" || inCart} onClick={reserve}>
-              <ShoppingBag /> {item.status !== "Available" ? `${item.status}` : inCart ? "In your bag" : "Reserve this item"}
+            <Button
+              variant="hero"
+              size="lg"
+              className="flex-1"
+              disabled={item.status !== "Available" || inCart}
+              onClick={reserve}
+            >
+              <ShoppingBag />{" "}
+              {item.status !== "Available"
+                ? `${item.status}`
+                : inCart
+                  ? "In your bag"
+                  : "Reserve this item"}
             </Button>
-            <Button variant="outline" size="lg" aria-label="Save" onClick={() => toggleSaved(item.id)}>
-              <Heart className={saved.includes(item.id) ? "fill-rose text-rose animate-heart" : ""} />
+            <Button
+              variant="outline"
+              size="lg"
+              aria-label="Save"
+              onClick={() => toggleSaved(item.id)}
+            >
+              <Heart
+                className={saved.includes(item.id) ? "fill-rose text-rose animate-heart" : ""}
+              />
             </Button>
           </div>
-          <p className="mt-4 flex items-center gap-2 text-sm text-muted-foreground"><Truck className="h-4 w-4" /> Rs. 250 delivery anywhere in Pakistan via TCS</p>
+          <p className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
+            <Truck className="h-4 w-4" /> Rs. 250 delivery anywhere in Pakistan via TCS
+          </p>
         </div>
       </div>
     </SiteLayout>

@@ -48,7 +48,10 @@ export function useAdminCustomers() {
   return useQuery({
     queryKey: ["admin", "customers"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("customers").select("*").order("created_at", { ascending: false });
+      const { data, error } = await supabase
+        .from("customers")
+        .select("*")
+        .order("created_at", { ascending: false });
       if (error) throw error;
       return data ?? [];
     },
@@ -60,7 +63,10 @@ export function useAdminExpenses(enabled = true) {
     enabled,
     queryKey: ["admin", "expenses"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("expenses").select("*").order("date", { ascending: false });
+      const { data, error } = await supabase
+        .from("expenses")
+        .select("*")
+        .order("date", { ascending: false });
       if (error) throw error;
       return data ?? [];
     },
