@@ -40,7 +40,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         remove: (id) => setItems((p) => p.filter((x) => x.id !== id)),
         clear: () => setItems([]),
         saved,
-        toggleSaved: (id) => setSaved((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id])),
+        toggleSaved: (id) =>
+          setSaved((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id])),
       }}
     >
       {children}
