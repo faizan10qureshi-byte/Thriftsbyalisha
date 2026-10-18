@@ -18,7 +18,14 @@ export const pkr = (n: number | null | undefined) =>
   `Rs. ${Math.round(n ?? 0).toLocaleString("en-PK")}`;
 
 export const DELIVERY_FEE = 250;
-export const ORDER_STATUSES = ["Pending", "Confirmed", "Packed", "Shipped", "Delivered", "Cancelled"] as const;
+export const ORDER_STATUSES = [
+  "Pending",
+  "Confirmed",
+  "Packed",
+  "Shipped",
+  "Delivered",
+  "Cancelled",
+] as const;
 export const LEAD_STATUSES = ["New", "Contacted", "Interested", "Ordered", "Lost"] as const;
 export const LEAD_SOURCES = ["Storefront", "Instagram", "WhatsApp"] as const;
 export const ITEM_STATUSES = ["Available", "Reserved", "Sold"] as const;

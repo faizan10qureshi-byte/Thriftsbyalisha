@@ -1,9 +1,20 @@
 import type { ReactNode } from "react";
 
-export function PageHead({ title, sub, children }: { title: string; sub?: string; children?: ReactNode }) {
+export function PageHead({
+  title,
+  sub,
+  children,
+}: {
+  title: string;
+  sub?: string;
+  children?: ReactNode;
+}) {
   return (
     <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-      <div><h1 className="text-4xl font-semibold">{title}</h1>{sub && <p className="text-sm text-muted-foreground">{sub}</p>}</div>
+      <div>
+        <h1 className="text-4xl font-semibold">{title}</h1>
+        {sub && <p className="text-sm text-muted-foreground">{sub}</p>}
+      </div>
       {children}
     </div>
   );

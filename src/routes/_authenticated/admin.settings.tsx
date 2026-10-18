@@ -12,7 +12,11 @@ import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/_authenticated/admin/settings")({ component: Settings });
 
-const ROLE_LABEL = { admin: "Owner (everything)", team: "Team (catalog, leads, orders)", finance: "Finance view" } as const;
+const ROLE_LABEL = {
+  admin: "Owner (everything)",
+  team: "Team (catalog, leads, orders)",
+  finance: "Finance view",
+} as const;
 
 function Settings() {
   const { isAdmin } = useAuth();
@@ -29,28 +33,78 @@ function Settings() {
     e.preventDefault();
     try {
       const r = await grant({ data: { email, role } });
-      if (!r.ok) { toast.error(r.error); return; }
-      toast.success("Access granted"); setEmail(""); team.refetch();
-    } catch (err) { toast.error((err as Error).message); }
+      if (!r.ok) {
+        toast.error(r.error);
+        return;
+      }
+      toast.success("Access granted");
+      setEmail("");
+      team.refetch();
+    } catch (err) {
+      toast.error((err as Error).message);
+    }
   };
 
   return (
     <div className="max-w-2xl">
-      <PageHead title="Team & permissions" sub="Teammates sign up on the site first, then you grant access here." />
+      <PageHead
+        title="Team & permissions"
+        sub="Teammates sign up on the site first, then you grant access here."
+      />
       <form onSubmit={add} className="flex flex-wrap gap-2 rounded-2xl border bg-card p-4">
-        <Input required type="email" placeholder="teammate@email.com" value={email} onChange={(e) => setEmail(e.target.value)} className="min-w-56 flex-1" />
-        <select value={role} onChange={(e) => setRole(e.target.value as typeof role)} className="h-10 rounded-md border bg-background px-2 text-sm">
-          {Object.entries(ROLE_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+        <Input
+          required
+          type="email"
+          placeholder="teammate@email.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="min-w-56 flex-1"
+        />
+        <select
+          value={role}
+          onChange={(e) => setRole(e.target.value as typeof role)}
+          className="h-10 rounded-md border bg-background px-2 text-sm"
+        >
+          {Object.entries(ROLE_LABEL).map(([k, v]) => (
+            <option key={k} value={k}>
+              {v}
+            </option>
+          ))}
         </select>
         <Button>Grant</Button>
       </form>
       <div className="mt-4 rounded-2xl border bg-card">
-        {team.isLoading ? <HangerLoader /> : team.data?.map((r) => (
-          <div key={r.id} className="flex items-center justify-between border-t p-3 text-sm first:border-0">
-            <span><b>{r.email}</b> <span className="text-muted-foreground">· {ROLE_LABEL[r.role as keyof typeof ROLE_LABEL]}</span></span>
-            <Button size="sm" variant="ghost" onClick={async () => { try { await revoke({ data: { id: r.id } }); team.refetch(); } catch (e) { toast.error((e as Error).message); } }}>Remove</Button>
-          </div>
-        ))}
+        {team.isLoading ? (
+          <HangerLoader />
+        ) : (
+          team.data?.map((r) => (
+            <div
+              key={r.id}
+              className="flex items-center justify-between border-t p-3 text-sm first:border-0"
+            >
+              <span>
+                <b>{r.email}</b>{" "}
+                <span className="text-muted-foreground">
+                  · {ROLE_LABEL[r.role as keyof typeof ROLE_LABEL]}
+                </span>
+              </span>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={async () => {
+                  try {
+                    await revoke({ data: { id: r.id } });
+                    team.refetch();
+                  } catch (e) {
+                    toast.error((e as Error).message);
+                  }
+                }}
+              >
+                Remove
+              </Button>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

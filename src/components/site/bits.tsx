@@ -1,7 +1,15 @@
 import { motion } from "framer-motion";
 import type { ReactNode } from "react";
 
-export function FadeIn({ children, delay = 0, className }: { children: ReactNode; delay?: number; className?: string }) {
+export function FadeIn({
+  children,
+  delay = 0,
+  className,
+}: {
+  children: ReactNode;
+  delay?: number;
+  className?: string;
+}) {
   return (
     <motion.div
       className={className}
@@ -18,7 +26,15 @@ export function FadeIn({ children, delay = 0, className }: { children: ReactNode
 export function HangerLoader({ label = "Finding treasures…" }: { label?: string }) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
-      <svg viewBox="0 0 64 48" className="h-12 w-16 animate-hanger text-rose" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        viewBox="0 0 64 48"
+        className="h-12 w-16 animate-hanger text-rose"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <path d="M32 4a5 5 0 0 1 5 5c0 3-5 4-5 8" />
         <path d="M32 17 6 36c-2 1.5-1 4 1.5 4h49c2.5 0 3.5-2.5 1.5-4L32 17Z" />
       </svg>
@@ -27,10 +43,20 @@ export function HangerLoader({ label = "Finding treasures…" }: { label?: strin
   );
 }
 
-export function SectionTitle({ eyebrow, title, className }: { eyebrow?: string; title: string; className?: string }) {
+export function SectionTitle({
+  eyebrow,
+  title,
+  className,
+}: {
+  eyebrow?: string;
+  title: string;
+  className?: string;
+}) {
   return (
     <div className={className}>
-      {eyebrow && <p className="mb-2 text-xs font-bold uppercase tracking-[0.25em] text-primary">{eyebrow}</p>}
+      {eyebrow && (
+        <p className="mb-2 text-xs font-bold uppercase tracking-[0.25em] text-primary">{eyebrow}</p>
+      )}
       <h2 className="text-4xl font-semibold md:text-5xl">{title}</h2>
     </div>
   );
@@ -55,7 +81,9 @@ export function StatusPill({ status }: { status: string }) {
     Received: "bg-success/15 text-success",
   };
   return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${tone[status] ?? "bg-muted"}`}>
+    <span
+      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${tone[status] ?? "bg-muted"}`}
+    >
       {status}
     </span>
   );
