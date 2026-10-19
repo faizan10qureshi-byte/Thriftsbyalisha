@@ -1,65 +1,37 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { DELIVERY_FEE, normalizePhone } from "./format";
+import { orderSchema } from "./shop-rules";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-const orderSchema = z.object({
-  itemIds: z.array(z.string().uuid()).min(1).max(10),
-  name: z.string().trim().min(2).max(80),
-  phone: z.string().trim().regex(/^03\d{2}-?\d{7}$/, "Use 03XX-XXXXXXX"),
-  address: z.string().trim().min(5).max(250),
-  city: z.string().trim().min(2).max(60),
-  instagram: z.string().trim().max(60).optional(),
-  advanceRef: z.string().trim().max(80).optional(),
-  userId: z.string().uuid().nullable().optional(),
-});
+export async function capabilityHash(token: string) {
+  const bytes = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(token));
+  return Array.from(new Uint8Array(bytes)).map(x => x.toString(16).padStart(2, "0")).join("");
+}
 
 export const placeOrder = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => orderSchema.parse(d))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const phone = normalizePhone(data.phone);
-
-    const { data: items, error: iErr } = await supabaseAdmin
-      .from("items").select("id,title,sell_price,status").in("id", data.itemIds);
-    if (iErr) throw new Error("Could not load items");
-    const unavailable = (items ?? []).filter((i) => i.status !== "Available");
-    if (!items?.length || unavailable.length) {
-      return { ok: false as const, error: `Sorry — ${unavailable.map((i) => i.title).join(", ") || "an item"} was just reserved by someone else.` };
-    }
-
-    const { data: existing } = await supabaseAdmin.from("customers").select("id,user_id").eq("phone", phone).maybeSingle();
-    let customerId = existing?.id;
-    if (customerId) {
-      await supabaseAdmin.from("customers").update({
-        name: data.name, address: data.address, city: data.city,
-        ...(data.instagram ? { instagram_handle: data.instagram } : {}),
-        user_id: existing?.user_id ?? data.userId ?? null,
-      }).eq("id", customerId);
-    } else {
-      const { data: c, error } = await supabaseAdmin.from("customers").insert({
-        name: data.name, phone, address: data.address, city: data.city,
-        instagram_handle: data.instagram || null, user_id: data.userId ?? null,
-      }).select("id").single();
-      if (error) throw new Error("Could not save your details");
-      customerId = c.id;
-    }
-
-    const codes: string[] = [];
-    for (const [idx, it] of items.entries()) {
-      const { data: o, error } = await supabaseAdmin.from("orders").insert({
-        customer_id: customerId!, item_id: it.id,
-        price: it.sell_price + (idx === 0 ? DELIVERY_FEE : 0),
-        status: "Pending", advance_status: "Pending", courier: "TCS",
-      }).select("code").single();
-      if (error) throw new Error("Could not place order");
-      codes.push(o.code);
-      await supabaseAdmin.from("items").update({ status: "Reserved" }).eq("id", it.id);
-      await supabaseAdmin.from("leads").insert({
-        customer_id: customerId!, item_id: it.id, source: "Storefront", status: "Ordered",
-        note: data.advanceRef ? `Advance ref: ${data.advanceRef}` : "Awaiting advance",
-      });
-    }
+    const { data: result, error } = await supabaseAdmin.rpc("checkout_shop", { p: {
+      ...data, phone: normalizePhone(data.phone), channel: "Storefront", deliveryFee: DELIVERY_FEE,
+      bagHash: data.bagToken ? await capabilityHash(data.bagToken) : null,
+    } });
+    if (error) return { ok: false as const, error: error.message };
+    const codes = z.object({ codes: z.array(z.string()) }).parse(result).codes;
     return { ok: true as const, codes };
+  });
+
+export const manualOrder = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => orderSchema.extend({ channel: z.enum(["Instagram", "WhatsApp"]), advancePaid: z.number().int().min(0), deliveryFee: z.number().int().min(0).max(10000) }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: staff } = await context.supabase.rpc("is_staff", { _user_id: context.userId });
+    if (!staff) throw new Error("Shop access is required");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: result, error } = await supabaseAdmin.rpc("checkout_shop", { p: { ...data, phone: normalizePhone(data.phone) } });
+    if (error) throw new Error(error.message);
+    return z.object({ codes: z.array(z.string()) }).parse(result);
   });
 
 export const trackOrder = createServerFn({ method: "POST" })

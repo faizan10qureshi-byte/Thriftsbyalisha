@@ -14,6 +14,97 @@ export type Database = {
   }
   public: {
     Tables: {
+      chat_conversations: {
+        Row: {
+          closed: boolean
+          id: string
+          lead_id: string
+          name: string
+          phone: string
+          token_hash: string
+          unread: number
+          updated_at: string
+        }
+        Insert: {
+          closed?: boolean
+          id?: string
+          lead_id: string
+          name: string
+          phone: string
+          token_hash: string
+          unread?: number
+          updated_at?: string
+        }
+        Update: {
+          closed?: boolean
+          id?: string
+          lead_id?: string
+          name?: string
+          phone?: string
+          token_hash?: string
+          unread?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_conversations_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: true
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_messages: {
+        Row: {
+          body: string
+          conversation_id: string
+          created_at: string
+          id: string
+          sender: string
+        }
+        Insert: {
+          body: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          sender: string
+        }
+        Update: {
+          body?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          sender?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "chat_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      collections: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       customers: {
         Row: {
           address: string | null
@@ -23,6 +114,7 @@ export type Database = {
           instagram_handle: string | null
           name: string
           phone: string
+          tags: string[]
           user_id: string | null
         }
         Insert: {
@@ -33,6 +125,7 @@ export type Database = {
           instagram_handle?: string | null
           name: string
           phone: string
+          tags?: string[]
           user_id?: string | null
         }
         Update: {
@@ -43,7 +136,41 @@ export type Database = {
           instagram_handle?: string | null
           name?: string
           phone?: string
+          tags?: string[]
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      discount_codes: {
+        Row: {
+          active: boolean
+          amount: number
+          code: string
+          expires_at: string | null
+          id: string
+          kind: string
+          usage_limit: number
+          uses: number
+        }
+        Insert: {
+          active?: boolean
+          amount: number
+          code: string
+          expires_at?: string | null
+          id?: string
+          kind: string
+          usage_limit?: number
+          uses?: number
+        }
+        Update: {
+          active?: boolean
+          amount?: number
+          code?: string
+          expires_at?: string | null
+          id?: string
+          kind?: string
+          usage_limit?: number
+          uses?: number
         }
         Relationships: []
       }
@@ -108,6 +235,7 @@ export type Database = {
       items: {
         Row: {
           category: string
+          collection_id: string | null
           condition_notes: string | null
           created_at: string
           date_sourced: string | null
@@ -124,6 +252,7 @@ export type Database = {
         }
         Insert: {
           category?: string
+          collection_id?: string | null
           condition_notes?: string | null
           created_at?: string
           date_sourced?: string | null
@@ -140,6 +269,7 @@ export type Database = {
         }
         Update: {
           category?: string
+          collection_id?: string | null
           condition_notes?: string | null
           created_at?: string
           date_sourced?: string | null
@@ -154,7 +284,15 @@ export type Database = {
           subcategory?: string | null
           title?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "items_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "collections"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       leads: {
         Row: {
@@ -209,13 +347,16 @@ export type Database = {
           advance_paid: number
           advance_status: string
           balance_due: number | null
+          checkout_id: string | null
           code: string
           courier: string | null
           customer_id: string
+          discount_amount: number
           id: string
           item_id: string | null
           order_date: string
           price: number
+          sales_channel: string
           status: string
           tracking_number: string | null
         }
@@ -223,13 +364,16 @@ export type Database = {
           advance_paid?: number
           advance_status?: string
           balance_due?: number | null
+          checkout_id?: string | null
           code?: string
           courier?: string | null
           customer_id: string
+          discount_amount?: number
           id?: string
           item_id?: string | null
           order_date?: string
           price?: number
+          sales_channel?: string
           status?: string
           tracking_number?: string | null
         }
@@ -237,13 +381,16 @@ export type Database = {
           advance_paid?: number
           advance_status?: string
           balance_due?: number | null
+          checkout_id?: string | null
           code?: string
           courier?: string | null
           customer_id?: string
+          discount_amount?: number
           id?: string
           item_id?: string | null
           order_date?: string
           price?: number
+          sales_channel?: string
           status?: string
           tracking_number?: string | null
         }
@@ -263,6 +410,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      saved_bags: {
+        Row: {
+          checkout_id: string | null
+          id: string
+          item_ids: string[]
+          name: string
+          phone: string
+          state: string
+          token_hash: string
+          updated_at: string
+        }
+        Insert: {
+          checkout_id?: string | null
+          id: string
+          item_ids: string[]
+          name: string
+          phone: string
+          state?: string
+          token_hash: string
+          updated_at?: string
+        }
+        Update: {
+          checkout_id?: string | null
+          id?: string
+          item_ids?: string[]
+          name?: string
+          phone?: string
+          state?: string
+          token_hash?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
@@ -291,6 +471,7 @@ export type Database = {
     }
     Functions: {
       can_see_finance: { Args: { _user_id: string }; Returns: boolean }
+      checkout_shop: { Args: { p: Json }; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -299,6 +480,15 @@ export type Database = {
         Returns: boolean
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      start_shop_chat: {
+        Args: {
+          p_body: string
+          p_hash: string
+          p_name: string
+          p_phone: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       app_role: "admin" | "team" | "finance"
