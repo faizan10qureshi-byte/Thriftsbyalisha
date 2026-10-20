@@ -4,6 +4,7 @@ import { PageHead, Stat } from "@/components/admin/ui";
 import { HangerLoader, StatusPill } from "@/components/site/bits";
 import { countsAsSale, useAdminExpenses, useAdminItems, useAdminLeads, useAdminOrders } from "@/lib/admin-data";
 import { useAuth } from "@/lib/auth";
+import { latestFive } from "@/lib/shop-rules";
 import { isLeadStale, pkr, timeAgo } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/admin/")({ component: Overview });
@@ -41,18 +42,18 @@ function Overview() {
       </div>
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <section className="rounded-2xl border bg-card p-5">
-          <div className="mb-3 flex justify-between"><h2 className="text-2xl font-semibold">To ship</h2><Link to="/admin/orders" className="text-sm text-primary">All orders →</Link></div>
+          <div className="mb-3 flex justify-between"><h2 className="text-2xl font-semibold">To ship</h2><Link to="/admin/orders" className="text-sm text-primary">View all →</Link></div>
           {toShip.length === 0 && <p className="text-sm text-muted-foreground">All caught up!</p>}
-          {toShip.map((x) => (
+          {latestFive(toShip).map((x) => (
             <div key={x.id} className="flex items-center justify-between border-t py-2 text-sm first:border-0">
               <span><b>{x.customers?.name}</b> · {x.items?.title}</span><StatusPill status={x.status} />
             </div>
           ))}
         </section>
         <section className="rounded-2xl border bg-card p-5">
-          <div className="mb-3 flex justify-between"><h2 className="text-2xl font-semibold">Waiting on a reply</h2><Link to="/admin/leads" className="text-sm text-primary">All leads →</Link></div>
+          <div className="mb-3 flex justify-between"><h2 className="text-2xl font-semibold">Waiting on a reply</h2><Link to="/admin/leads" className="text-sm text-primary">View all →</Link></div>
           {stale.length === 0 && <p className="text-sm text-muted-foreground">No one is waiting. Lovely.</p>}
-          {stale.map((l) => (
+          {latestFive(stale).map((l) => (
             <div key={l.id} className="flex items-center justify-between border-t py-2 text-sm first:border-0">
               <span className="flex items-center gap-2"><AlertCircle className="h-4 w-4 text-destructive" /><b>{l.customers?.name}</b> · {l.items?.title}</span>
               <span className="text-muted-foreground">{timeAgo(l.last_reply_at ?? l.first_contact_at)}</span>

@@ -1,64 +1,16 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Line, LineChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { PageHead, Stat } from "@/components/admin/ui";
-import { HangerLoader } from "@/components/site/bits";
-import { countsAsSale, useAdminCustomers, useAdminLeads, useAdminOrders, weekKey } from "@/lib/admin-data";
-import { isLeadStale, pkr, timeAgo } from "@/lib/format";
-
-export const Route = createFileRoute("/_authenticated/admin/reports")({ component: Reports });
-
-function Reports() {
-  const orders = useAdminOrders();
-  const leads = useAdminLeads();
-  const customers = useAdminCustomers();
-  if (orders.isLoading || leads.isLoading || customers.isLoading) return <HangerLoader />;
-
-  const sales = (orders.data ?? []).filter((o) => countsAsSale(o.status));
-  const weeks = new Map<string, number>();
-  sales.forEach((o) => { const k = weekKey(new Date(o.order_date)); weeks.set(k, (weeks.get(k) ?? 0) + o.price); });
-  const trend = [...weeks.entries()].sort().map(([k, v]) => ({ week: k.slice(5), sales: v }));
-  const byCat = new Map<string, number>();
-  sales.forEach((o) => { const c = o.items?.category ?? "other"; byCat.set(c, (byCat.get(c) ?? 0) + 1); });
-  const best = [...byCat.entries()].sort((a, b) => b[1] - a[1])[0];
-  const perCust = new Map<string, number>();
-  sales.forEach((o) => perCust.set(o.customer_id, (perCust.get(o.customer_id) ?? 0) + 1));
-  const buyers = perCust.size;
-  const repeat = [...perCust.values()].filter((n) => n > 1).length;
-  const stale = (leads.data ?? []).filter((l) => isLeadStale(l))
-    .sort((a, b) => new Date(a.last_reply_at ?? a.first_contact_at).getTime() - new Date(b.last_reply_at ?? b.first_contact_at).getTime());
-
-  return (
-    <div>
-      <PageHead title="Reports" />
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Stat label="Total sales" value={pkr(sales.reduce((s, o) => s + o.price, 0))} hint={`${sales.length} orders`} />
-        <Stat label="Best category" value={best ? best[0].charAt(0).toUpperCase() + best[0].slice(1) : "—"} hint={best ? `${best[1]} sold` : ""} />
-        <Stat label="Repeat rate" value={buyers ? `${Math.round((repeat / buyers) * 100)}%` : "—"} hint={`${repeat} of ${buyers} buyers`} />
-        <Stat label="Unanswered leads" value={String(stale.length)} />
-      </div>
-      <div className="mt-6 rounded-2xl border bg-card p-5">
-        <h2 className="mb-3 text-2xl font-semibold">Weekly sales trend</h2>
-        <div className="h-64">
-          <ResponsiveContainer>
-            <LineChart data={trend}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-              <XAxis dataKey="week" fontSize={12} /><YAxis fontSize={12} />
-              <Tooltip formatter={(v: number) => pkr(v)} />
-              <Line type="monotone" dataKey="sales" stroke="var(--chart-1)" strokeWidth={3} dot={{ r: 5 }} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-      <div className="mt-6 rounded-2xl border bg-card p-5">
-        <h2 className="text-2xl font-semibold">Top unresponded leads</h2>
-        {stale.slice(0, 8).map((l) => (
-          <div key={l.id} className="flex justify-between border-t py-2 text-sm">
-            <span><b>{l.customers?.name}</b> · {l.items?.title} <span className="text-muted-foreground">({l.source})</span></span>
-            <span className="font-semibold text-destructive">{timeAgo(l.last_reply_at ?? l.first_contact_at)}</span>
-          </div>
-        ))}
-        {!stale.length && <p className="text-sm text-muted-foreground">Everyone's been answered.</p>}
-      </div>
-    </div>
-  );
+import { createFileRoute, Link } from '@tanstack/react-router';
+import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { PageHead, Stat } from '@/components/admin/ui';
+import { HangerLoader } from '@/components/site/bits';
+import { countsAsSale, useAdminOrders } from '@/lib/admin-data';
+import { supabase } from '@/integrations/supabase/client';
+import { pageHead } from '@/lib/page-head';
+import { pkr } from '@/lib/format';
+export const Route=createFileRoute('/_authenticated/admin/reports')({head:()=>pageHead('Sales insights','Sales, popular collections and unfinished bags.',true),component:Insights});
+function Insights(){const orders=useAdminOrders();const[period,setPeriod]=useState('30');const bags=useQuery({queryKey:['admin','bags'],queryFn:async()=>{const{data,error}=await supabase.from('saved_bags').select('id,name,phone,item_ids,state,updated_at').order('updated_at',{ascending:false}).limit(100);if(error)throw error;return data??[];}});const collections=useQuery({queryKey:['admin','collection-sales'],queryFn:async()=>{const{data,error}=await supabase.from('items').select('id,collections(name)');if(error)throw error;return data??[];}});
+ if(orders.isLoading)return <HangerLoader/>;if(orders.isError)return <p role="alert">Sales could not load.</p>;
+ const since=period==='all'?0:Date.now()-Number(period)*86400000;const sales=(orders.data??[]).filter(o=>countsAsSale(o.status)&&new Date(o.order_date).getTime()>=since);const total=sales.reduce((n,o)=>n+o.price,0);const purchases=new Set(sales.map(o=>o.checkout_id??o.id));const byCollection=new Map<string,number>();for(const o of sales){const name=collections.data?.find(i=>i.id===o.item_id)?.collections?.name??'No collection';byCollection.set(name,(byCollection.get(name)??0)+o.price);}const channels=new Map<string,number>();for(const o of sales)channels.set(o.sales_channel,(channels.get(o.sales_channel)??0)+o.price);
+ const abandoned=(bags.data??[]).filter(b=>b.state==='open'&&b.item_ids.length>0&&new Date(b.updated_at).getTime()<Date.now()-3600000);const recovered=(bags.data??[]).filter(b=>b.state==='purchased');
+ return <div><PageHead title="Sales insights"><select aria-label="Sales period" value={period} onChange={e=>setPeriod(e.target.value)} className="h-10 rounded-md border bg-background px-3 text-sm"><option value="7">Last 7 days</option><option value="30">Last 30 days</option><option value="all">All time</option></select></PageHead><div className="grid grid-cols-2 gap-4 lg:grid-cols-4"><Stat label="Sales" value={pkr(total)}/><Stat label="Orders" value={String(purchases.size)}/><Stat label="Average order" value={pkr(purchases.size?total/purchases.size:0)}/><Stat label="Items sold" value={String(sales.length)}/></div><p className="mt-3 text-xs text-muted-foreground">Confirmed sales include delivery and exclude pending and cancelled orders.</p><div className="mt-8 grid gap-8 sm:grid-cols-2"><section><h2 className="mb-3 text-2xl font-semibold">Popular collections</h2>{[...byCollection].sort((a,b)=>b[1]-a[1]).map(([name,value])=><div key={name} className="flex justify-between border-b py-3"><span>{name}</span><b>{pkr(value)}</b></div>)}</section><section><h2 className="mb-3 text-2xl font-semibold">Sales by source</h2>{[...channels].map(([name,value])=><div key={name} className="flex justify-between border-b py-3"><span>{name}</span><b>{pkr(value)}</b></div>)}</section></div><section className="mt-8"><h2 className="text-2xl font-semibold">Unfinished bags</h2><p className="mb-4 mt-1 text-sm text-muted-foreground">Saved with permission; no checkout for over an hour. {recovered.length} saved bags purchased.</p>{bags.isError?<p>Bag tracking requires Shop work access.</p>:abandoned.length?abandoned.map(b=><div key={b.id} className="flex flex-wrap justify-between gap-3 border-b py-3 text-sm"><span><b>{b.name}</b> · {b.phone}</span><span>{b.item_ids.length} items · {new Date(b.updated_at).toLocaleDateString()}</span></div>):<p className="text-sm text-muted-foreground">No unfinished bags yet.</p>}</section><section className="mt-8"><div className="flex justify-between"><h2 className="text-2xl font-semibold">Latest sales</h2><Link to="/admin/orders" className="text-sm text-primary">View all →</Link></div>{sales.slice(0,5).map(o=><div key={o.id} className="flex justify-between gap-3 border-b py-3 text-sm"><Link to="/admin/orders/$id" params={{id:o.id}}>{o.code} · {o.items?.title}</Link><b>{pkr(o.price)}</b></div>)}</section></div>;
 }

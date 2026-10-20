@@ -20,7 +20,7 @@ export const pkr = (n: number | null | undefined) =>
 export const DELIVERY_FEE = 250;
 export const ORDER_STATUSES = ["Pending", "Confirmed", "Packed", "Shipped", "Delivered", "Cancelled"] as const;
 export const LEAD_STATUSES = ["New", "Contacted", "Interested", "Ordered", "Lost"] as const;
-export const LEAD_SOURCES = ["Storefront", "Instagram", "WhatsApp"] as const;
+export const LEAD_SOURCES = ["Storefront", "Instagram", "WhatsApp", "Website Chat"] as const;
 export const ITEM_STATUSES = ["Available", "Reserved", "Sold"] as const;
 export const EXPENSE_TYPES = ["sourcing", "ads", "packaging", "delivery"] as const;
 /** Hours without a reply before a lead is flagged. */

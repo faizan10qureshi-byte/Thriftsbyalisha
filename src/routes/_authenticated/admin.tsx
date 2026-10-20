@@ -13,12 +13,15 @@ export const Route = createFileRoute("/_authenticated/admin")({
 const NAV = [
   { to: "/admin", label: "Overview", icon: Home, exact: true },
   { to: "/admin/inventory", label: "Inventory", icon: Boxes },
+  { to: "/admin/collections", label: "Collections", icon: Boxes },
+  { to: "/admin/inbox", label: "Chat inbox", icon: MessageSquareHeart },
+  { to: "/admin/discounts", label: "Discount codes", icon: Package, admin: true },
   { to: "/admin/leads", label: "Leads", icon: MessageSquareHeart },
   { to: "/admin/orders", label: "Orders", icon: Package },
   { to: "/admin/customers", label: "Customers", icon: Users },
   { to: "/admin/finance", label: "Finance", icon: Wallet, finance: true },
-  { to: "/admin/reports", label: "Reports", icon: BarChart3 },
-  { to: "/admin/settings", label: "Settings", icon: Settings, admin: true },
+  { to: "/admin/reports", label: "Sales insights", icon: BarChart3 },
+  { to: "/admin/settings", label: "Teams & Permissions", icon: Settings, admin: true },
 ] as const;
 
 function AdminLayout() {
@@ -38,15 +41,15 @@ function AdminLayout() {
       </div>
     );
   }
-  const nav = NAV.filter((n) => (!("finance" in n) || canFinance) && (!("admin" in n) || isAdmin));
+  const nav = NAV.filter((n) => (isStaff || ("finance" in n) || n.to === "/admin/reports") && (!("finance" in n) || canFinance) && (!("admin" in n) || isAdmin));
   return (
     <div className="flex min-h-screen bg-background">
-      <aside className="sticky top-0 hidden h-screen w-56 shrink-0 flex-col border-r bg-sidebar p-4 md:flex">
+      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r bg-sidebar p-4 md:flex">
         <Link to="/" className="mb-6 px-2 font-display text-2xl font-bold italic">thriftsbyalisha</Link>
         <nav className="flex flex-1 flex-col gap-1">
           {nav.map((n) => (
             <Link key={n.to} to={n.to} activeOptions={{ exact: "exact" in n }}
-              className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-sidebar-foreground transition hover:bg-sidebar-accent"
+              className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-semibold text-sidebar-foreground transition hover:bg-sidebar-accent"
               activeProps={{ className: "bg-sidebar-accent text-primary" }}>
               <n.icon className="h-4 w-4" /> {n.label}
             </Link>

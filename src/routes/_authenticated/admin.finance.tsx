@@ -21,7 +21,7 @@ function Finance() {
   const refresh = useRefreshAdmin();
   const [f, setF] = useState({ type: "sourcing", amount: "", date: new Date().toISOString().slice(0, 10), note: "" });
 
-  if (!canFinance) return <p className="text-muted-foreground">Finance is visible to the owner only.</p>;
+  if (!canFinance) return <p className="text-muted-foreground">Finance access is required.</p>;
   if (orders.isLoading || items.isLoading || expenses.isLoading) return <HangerLoader />;
 
   const cost = new Map((items.data ?? []).map((i) => [i.id, { c: i.cost_price, t: i.title }]));
@@ -29,7 +29,7 @@ function Finance() {
   const exp = expenses.data ?? [];
   // Item cost is counted per sale; "sourcing" expenses are the cash spent at bazaars (shown separately).
   const weeks = new Map<string, { week: string; revenue: number; profit: number; expenses: number }>();
-  const bump = (k: string) => weeks.get(k) ?? weeks.set(k, { week: k.slice(5), revenue: 0, profit: 0, expenses: 0 }).get(k)!;
+  const bump = (k: string) => { const existing = weeks.get(k); if (existing) return existing; const row = { week: k.slice(5), revenue: 0, profit: 0, expenses: 0 }; weeks.set(k, row); return row; };
   for (const o of sales) { const w = bump(weekKey(new Date(o.order_date))); w.revenue += o.price; w.profit += o.price - (cost.get(o.item_id ?? "")?.c ?? 0); }
   for (const e of exp) { if (e.type === "sourcing") continue; const w = bump(weekKey(new Date(e.date))); w.expenses += e.amount; w.profit -= e.amount; }
   const chart = [...weeks.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([, v]) => v);
