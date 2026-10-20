@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { Search } from "lucide-react";
 import { z } from "zod";
 import { useMemo, useState } from "react";
@@ -9,6 +9,7 @@ import { SectionTitle } from "@/components/site/bits";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { itemsQuery } from "@/lib/items";
+import { supabase } from "@/integrations/supabase/client";
 import { pkr } from "@/lib/format";
 
 const searchSchema = z.object({
@@ -33,6 +34,8 @@ function Shop() {
   const { data } = useSuspenseQuery(itemsQuery());
   const { category } = Route.useSearch();
   const navigate = useNavigate({ from: "/shop" });
+  const [collection, setCollection] = useState("");
+  const collections = useQuery({ queryKey: ["collections"], queryFn: async () => { const { data, error } = await supabase.from("collections").select("id,name").order("name"); if (error) throw error; return data ?? []; } });
   const [q, setQ] = useState("");
   const [size, setSize] = useState<string>("");
   const [max, setMax] = useState(5000);
@@ -41,6 +44,7 @@ function Shop() {
   const sizes = useMemo(() => [...new Set(data.filter((i) => !category || i.category === category).map((i) => i.size))].sort(), [data, category]);
   const list = data.filter((i) =>
     (!category || i.category === category) &&
+    (!collection || i.collection_id === collection) &&
     (!size || i.size === size) &&
     i.sell_price <= max &&
     (showSold || i.status !== "Sold") &&
@@ -77,6 +81,7 @@ function Shop() {
             </label>
           </div>
         </div>
+        <label className="mt-5 block text-sm">Collection<select aria-label="Collection" value={collection} onChange={e => setCollection(e.target.value)} className="ml-3 h-10 rounded-md border bg-background px-3"><option value="">All collections</option>{collections.data?.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
         <p className="mt-6 text-sm text-muted-foreground">{list.length} pieces</p>
         <div className="mt-3 grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
           {list.map((it) => <ProductCard key={it.id} item={it} />)}

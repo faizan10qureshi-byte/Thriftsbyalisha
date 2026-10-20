@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { useCart } from "@/lib/cart";
 import { DELIVERY_FEE, PK_PHONE, photoUrl, pkr } from "@/lib/format";
 import { placeOrder } from "@/lib/shop.functions";
-import { supabase } from "@/integrations/supabase/client";
+import { checkDiscount, saveBag } from "@/lib/operations.functions";
 
 export const Route = createFileRoute("/cart")({
   head: () => ({
@@ -32,11 +32,22 @@ function Cart() {
   const [form, setForm] = useState({ name: "", phone: "", address: "", city: "", instagram: "", advanceRef: "" });
   const [busy, setBusy] = useState(false);
   const [codes, setCodes] = useState<string[]>([]);
-  const [userId, setUserId] = useState<string | null>(null);
-  useEffect(() => { supabase.auth.getUser().then(({ data }) => setUserId(data.user?.id ?? null)); }, []);
+  const [checkoutId] = useState(() => crypto.randomUUID());
+  const [bag] = useState(() => ({ id: crypto.randomUUID(), token: crypto.randomUUID() }));
+  const [consent, setConsent] = useState(false);
+  const [discountCode, setDiscountCode] = useState("");
+  const [discount, setDiscount] = useState(0);
+  const check = useServerFn(checkDiscount);
+  const save = useServerFn(saveBag);
+  useEffect(() => { setDiscount(0); }, [items, discountCode]);
+  useEffect(() => {
+    if (!consent || !PK_PHONE.test(form.phone) || form.name.trim().length < 2 || !items.length || step === "done") return;
+    const timer = setTimeout(() => { save({ data: { ...bag, name: form.name, phone: form.phone, itemIds: items.map(i => i.id) } }).catch(() => toast.error("Your bag could not be saved.")); }, 800);
+    return () => clearTimeout(timer);
+  }, [consent, form.name, form.phone, items, bag, step, save]);
 
   const subtotal = items.reduce((s, i) => s + i.price, 0);
-  const total = subtotal + (items.length ? DELIVERY_FEE : 0);
+  const total = subtotal - discount + (items.length ? DELIVERY_FEE : 0);
   const advance = Math.min(total, 500 * items.length);
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, [k]: e.target.value });
 
@@ -49,7 +60,7 @@ function Cart() {
   const confirm = async () => {
     setBusy(true);
     try {
-      const res = await submit({ data: { ...form, itemIds: items.map((i) => i.id), userId } });
+      const res = await submit({ data: { ...form, itemIds: items.map((i) => i.id), checkoutId, discountCode, ...(consent ? { bagId: bag.id, bagToken: bag.token } : {}) } });
       if (!res.ok) { toast.error(res.error); return; }
       setCodes(res.codes); clear(); setStep("done");
     } catch (e) {
@@ -104,6 +115,7 @@ function Cart() {
               <div><Label>Phone (WhatsApp)</Label><Input required placeholder="0300-1234567" value={form.phone} onChange={set("phone")} className="mt-1" /></div>
               <div><Label>City</Label><Input required placeholder="Islamabad" value={form.city} onChange={set("city")} className="mt-1" /></div>
               <div className="sm:col-span-2"><Label>Full address</Label><Input required value={form.address} onChange={set("address")} className="mt-1" /></div>
+              <label className="sm:col-span-2 flex items-start gap-2 text-sm"><input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} className="mt-1"/>Save this bag with my contact details if I don’t finish checkout.</label>
               <div className="sm:col-span-2"><Label>Instagram (optional)</Label><Input placeholder="@yourhandle" value={form.instagram} onChange={set("instagram")} className="mt-1" /></div>
             </form>
           )}
@@ -122,9 +134,11 @@ function Cart() {
         </div>
         <aside className="h-fit rounded-[1.5rem] bg-gradient-blush p-6 shadow-soft md:sticky md:top-24">
           <h2 className="text-2xl font-semibold">Order summary</h2>
+          <div className="mt-4 flex gap-2"><Input aria-label="Discount code" placeholder="Discount code" value={discountCode} onChange={e => setDiscountCode(e.target.value.toUpperCase())}/><Button variant="outline" disabled={!discountCode || !items.length} onClick={async () => { try { const r = await check({data:{code:discountCode,itemIds:items.map(i=>i.id)}}); if(!r.ok){toast.error("This code is not available");setDiscount(0);}else {setDiscount(r.amount);toast.success("Discount applied");} } catch {toast.error("Could not check this code");} }}>Apply</Button></div>
           <dl className="mt-4 space-y-2 text-sm">
             <div className="flex justify-between"><dt>Items ({items.length})</dt><dd>{pkr(subtotal)}</dd></div>
             <div className="flex justify-between"><dt>Delivery</dt><dd>{pkr(items.length ? DELIVERY_FEE : 0)}</dd></div>
+            {discount > 0 && <div className="flex justify-between"><dt>Discount</dt><dd>− {pkr(discount)}</dd></div>}
             <div className="flex justify-between border-t pt-2 text-base font-bold"><dt>Total</dt><dd>{pkr(total)}</dd></div>
             <div className="flex justify-between text-primary"><dt>Advance now</dt><dd>{pkr(advance)}</dd></div>
           </dl>

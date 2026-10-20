@@ -1,7 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-const COLS = "id,title,category,subcategory,size,measurements,condition_notes,description,photos,sell_price,status,created_at";
+const COLS = "id,title,category,subcategory,size,measurements,condition_notes,description,photos,sell_price,status,created_at,collection_id";
 
 export const itemsQuery = () =>
   queryOptions({
