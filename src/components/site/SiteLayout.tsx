@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Instagram, Menu, ShoppingBag, User, X } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { ChatBubble } from "./ChatBubble";
 import { useCart } from "@/lib/cart";
 
 const NAV = [
@@ -57,6 +58,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
       <motion.main className="flex-1" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
         {children}
       </motion.main>
+      <ChatBubble />
       <footer className="mt-20 border-t bg-gradient-blush">
         <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 md:grid-cols-3">
           <div>
