@@ -16,6 +16,8 @@ import { checkDiscount, saveBag } from "@/lib/operations.functions";
 export const Route = createFileRoute("/cart")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Your bag & checkout — thriftsbyalisha" },
       { name: "description", content: "Review your reserved thrifted pieces and check out with a small advance payment." },
       { property: "og:title", content: "Checkout — thriftsbyalisha" },

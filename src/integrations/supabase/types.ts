@@ -351,6 +351,7 @@ export type Database = {
           code: string
           courier: string | null
           customer_id: string
+          delivery_details: Json | null
           discount_amount: number
           id: string
           item_id: string | null
@@ -368,6 +369,7 @@ export type Database = {
           code?: string
           courier?: string | null
           customer_id: string
+          delivery_details?: Json | null
           discount_amount?: number
           id?: string
           item_id?: string | null
@@ -385,6 +387,7 @@ export type Database = {
           code?: string
           courier?: string | null
           customer_id?: string
+          delivery_details?: Json | null
           discount_amount?: number
           id?: string
           item_id?: string | null
@@ -472,6 +475,7 @@ export type Database = {
     Functions: {
       can_see_finance: { Args: { _user_id: string }; Returns: boolean }
       checkout_shop: { Args: { p: Json }; Returns: Json }
+      checkout_with_delivery: { Args: { p: Json }; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -480,6 +484,7 @@ export type Database = {
         Returns: boolean
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      save_shop_bag: { Args: { p: Json }; Returns: undefined }
       start_shop_chat: {
         Args: {
           p_body: string

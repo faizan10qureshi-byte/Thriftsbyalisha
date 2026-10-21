@@ -15,9 +15,9 @@ export const listTeam = createServerFn({ method: "GET" })
     const { data: roles } = await supabaseAdmin.from("user_roles").select("id,user_id,role");
     const { data: users } = await supabaseAdmin.auth.admin.listUsers({ perPage: 200 });
     const byId = new Map((users?.users ?? []).map((u) => [u.id, u.email ?? ""]));
-    const rows = (roles ?? []).map((r) => ({ ...r, email: byId.get(r.user_id) ?? "unknown" }));
+    const rows: { id: string; user_id: string; role: "admin" | "team" | "finance" | null; email: string }[] = (roles ?? []).map((r) => ({ ...r, email: byId.get(r.user_id) ?? "unknown" }));
     for (const u of users?.users ?? []) {
-      if (!rows.some(r => r.user_id === u.id)) rows.push({ id: u.id, user_id: u.id, role: "none" as typeof rows[number]["role"], email: u.email ?? "unknown" });
+      if (!rows.some(r => r.user_id === u.id)) rows.push({ id: u.id, user_id: u.id, role: null, email: u.email ?? "unknown" });
     }
     return rows;
   });

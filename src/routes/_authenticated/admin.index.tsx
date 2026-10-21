@@ -1,3 +1,4 @@
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AlertCircle } from "lucide-react";
 import { PageHead, Stat } from "@/components/admin/ui";
@@ -7,7 +8,7 @@ import { useAuth } from "@/lib/auth";
 import { latestFive } from "@/lib/shop-rules";
 import { isLeadStale, pkr, timeAgo } from "@/lib/format";
 
-export const Route = createFileRoute("/_authenticated/admin/")({ component: Overview });
+export const Route = createFileRoute("/_authenticated/admin/")({ head: () => pageHead("Shop overview", "Latest shop orders and leads.", true), component: Overview });
 
 function Overview() {
   const { canFinance } = useAuth();

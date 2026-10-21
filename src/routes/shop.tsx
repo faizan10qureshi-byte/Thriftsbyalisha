@@ -20,6 +20,8 @@ export const Route = createFileRoute("/shop")({
   validateSearch: searchSchema,
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Shop thrifted clothing & shoes — thriftsbyalisha" },
       { name: "description", content: "Browse one-of-a-kind thrifted dresses, tops, jeans, sneakers and heels. Filter by size and price in PKR." },
       { property: "og:title", content: "Shop — thriftsbyalisha" },

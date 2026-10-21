@@ -12,3 +12,8 @@
 - Storefront writes (orders, tracking) go through server functions in src/lib/shop.functions.ts using the admin client; anonymous shoppers never write tables directly.
 - Dashboard lives under src/routes/_authenticated/admin.*; access is enforced by RLS via has_role/is_staff/can_see_finance, the UI checks are cosmetic.
 - Item cost prices live in item_costs (staff-only) so the public items table never exposes cost.
+
+- One-off website and manual orders use checkout_with_delivery/checkout_shop transactions plus order inventory triggers and the active-item unique index; this keeps reservation, discount use, and delivery snapshots atomic.
+- Compact admin lists use bounded database pagination; detail routes un-nest from list routes so list components need not render detail content.
+- Guest chat and saved bags require server-validated hashed capabilities; guests never read or write private tables directly. Staff inbox uses scoped Realtime policies while guest chat reads through server functions.
+- Team switches map to protected role rows; only authenticated owners may change roles, and self-owner removal is blocked server-side.

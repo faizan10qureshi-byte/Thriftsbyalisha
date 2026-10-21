@@ -22,10 +22,7 @@ export const saveBag = createServerFn({ method: 'POST' })
  .handler(async ({ data }) => {
   const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
   const hash = await capabilityHash(data.token);
-  const { data: existing } = await supabaseAdmin.from('saved_bags').select('token_hash,state').eq('id', data.id).maybeSingle();
-  if (existing && existing.token_hash !== hash) throw new Error('This bag is not available');
-  if (existing?.state === 'purchased') return { ok: true };
-  const { error } = await supabaseAdmin.from('saved_bags').upsert({ id: data.id, token_hash: hash, name: data.name, phone: normalizePhone(data.phone), item_ids: data.itemIds, updated_at: new Date().toISOString() });
+  const { error } = await supabaseAdmin.rpc('save_shop_bag', { p: { ...data, hash, phone: normalizePhone(data.phone) } });
   if (error) throw new Error('Could not save your bag');
   return { ok: true };
  });
@@ -48,9 +45,9 @@ export const readChat = createServerFn({ method: 'POST' })
   const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
   const { data: conversation } = await supabaseAdmin.from('chat_conversations').select('id,closed').eq('id', data.id).eq('token_hash', await capabilityHash(data.token)).maybeSingle();
   if (!conversation) throw new Error('This chat is not available');
-  const { data: messages, error } = await supabaseAdmin.from('chat_messages').select('id,sender,body,created_at').eq('conversation_id', conversation.id).order('created_at').limit(500);
+  const { data: messages, error } = await supabaseAdmin.from('chat_messages').select('id,sender,body,created_at').eq('conversation_id', conversation.id).order('created_at', { ascending: false }).limit(500);
   if (error) throw new Error('Could not load messages');
-  return { messages: messages ?? [], closed: conversation.closed };
+  return { messages: (messages ?? []).reverse(), closed: conversation.closed };
  });
 
 export const sendVisitorMessage = createServerFn({ method: 'POST' })

@@ -6,6 +6,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 export const Route = createFileRoute("/faq")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "FAQ, delivery & sizing — thriftsbyalisha" },
       { name: "description", content: "Delivery times, advance payments, sizing guide and our exchange policy for thrifted orders across Pakistan." },
       { property: "og:title", content: "FAQ — thriftsbyalisha" },

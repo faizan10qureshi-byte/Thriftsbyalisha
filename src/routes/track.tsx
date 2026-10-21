@@ -12,6 +12,8 @@ import { photoUrl, pkr } from "@/lib/format";
 export const Route = createFileRoute("/track")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Track your order — thriftsbyalisha" },
       { name: "description", content: "Check your thriftsbyalisha order status and TCS tracking number." },
       { property: "og:title", content: "Track your order — thriftsbyalisha" },
