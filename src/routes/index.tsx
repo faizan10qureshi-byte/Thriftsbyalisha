@@ -17,6 +17,8 @@ import { itemsQuery } from "@/lib/items";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "thriftsbyalisha — Thrifted clothing & shoes in Pakistan" },
       { name: "description", content: "Hand-picked pre-loved dresses, denim, sneakers and heels from Islamabad's bazaars, delivered nationwide." },
       { property: "og:title", content: "thriftsbyalisha — Thrifted fashion boutique" },

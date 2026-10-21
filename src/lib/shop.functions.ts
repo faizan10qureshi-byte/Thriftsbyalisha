@@ -13,7 +13,7 @@ export const placeOrder = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => orderSchema.parse(d))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: result, error } = await supabaseAdmin.rpc("checkout_shop", { p: {
+    const { data: result, error } = await supabaseAdmin.rpc("checkout_with_delivery", { p: {
       ...data, phone: normalizePhone(data.phone), channel: "Storefront", deliveryFee: DELIVERY_FEE,
       bagHash: data.bagToken ? await capabilityHash(data.bagToken) : null,
     } });
@@ -29,7 +29,7 @@ export const manualOrder = createServerFn({ method: "POST" })
     const { data: staff } = await context.supabase.rpc("is_staff", { _user_id: context.userId });
     if (!staff) throw new Error("Shop access is required");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: result, error } = await supabaseAdmin.rpc("checkout_shop", { p: { ...data, phone: normalizePhone(data.phone) } });
+    const { data: result, error } = await supabaseAdmin.rpc("checkout_with_delivery", { p: { ...data, phone: normalizePhone(data.phone) } });
     if (error) throw new Error(error.message);
     return z.object({ codes: z.array(z.string()) }).parse(result);
   });

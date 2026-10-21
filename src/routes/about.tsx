@@ -7,6 +7,8 @@ import { FadeIn, SectionTitle } from "@/components/site/bits";
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Our story & contact — thriftsbyalisha" },
       { name: "description", content: "How thriftsbyalisha hand-picks pre-loved fashion from Islamabad's weekly bazaars, and how to reach us." },
       { property: "og:title", content: "About thriftsbyalisha" },

@@ -10,6 +10,8 @@ import { photoUrl, pkr } from "@/lib/format";
 export const Route = createFileRoute("/account")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "My account — thriftsbyalisha" },
       { name: "description", content: "Your thriftsbyalisha order history and saved address." },
       { property: "og:title", content: "My account — thriftsbyalisha" },

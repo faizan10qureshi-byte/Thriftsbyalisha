@@ -13,6 +13,8 @@ export const Route = createFileRoute("/auth")({
   validateSearch: z.object({ next: z.string().optional() }),
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Sign in — thriftsbyalisha" },
       { name: "description", content: "Sign in to see your orders, or log in to the thriftsbyalisha team dashboard." },
       { property: "og:title", content: "Sign in — thriftsbyalisha" },

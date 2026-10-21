@@ -1,3 +1,4 @@
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -11,7 +12,7 @@ import { countsAsSale, useAdminExpenses, useAdminItems, useAdminOrders, useRefre
 import { useAuth } from "@/lib/auth";
 import { EXPENSE_TYPES, pkr } from "@/lib/format";
 
-export const Route = createFileRoute("/_authenticated/admin/finance")({ component: Finance });
+export const Route = createFileRoute("/_authenticated/admin/finance")({ head: () => pageHead("Finance", "Shop costs, expenses and profit.", true), component: Finance });
 
 function Finance() {
   const { canFinance } = useAuth();
