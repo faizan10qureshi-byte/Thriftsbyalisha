@@ -13,7 +13,7 @@ export const checkDiscount = createServerFn({ method: 'POST' })
    supabaseAdmin.from('discount_codes').select('*').eq('code', data.code.toUpperCase()).maybeSingle(),
    supabaseAdmin.from('items').select('id,sell_price,status').in('id', data.itemIds),
   ]);
-  if (error || !discount || !discountAvailable(discount) || items?.length !== new Set(data.itemIds).size) return { ok: false as const, amount: 0 };
+  if (error || !discount || !discountAvailable(discount) || items?.length !== new Set(data.itemIds).size || items.some(item => item.status !== 'Available')) return { ok: false as const, amount: 0 };
   return { ok: true as const, amount: discountValue(items.reduce((n, i) => n + i.sell_price, 0), discount.kind, discount.amount) };
  });
 

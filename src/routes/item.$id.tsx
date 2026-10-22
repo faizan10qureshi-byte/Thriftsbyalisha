@@ -19,12 +19,14 @@ export const Route = createFileRoute("/item/$id")({
   head: ({ loaderData }) => ({
     meta: loaderData
       ? [
+          { property: "og:type", content: "website" },
+          { name: "twitter:card", content: "summary_large_image" },
           { title: `${loaderData.title} — thriftsbyalisha` },
           { name: "description", content: `Thrifted ${loaderData.title}, size ${loaderData.size}, ${pkr(loaderData.price)}. One piece only.` },
           { property: "og:title", content: loaderData.title },
           { property: "og:description", content: `Size ${loaderData.size} · ${pkr(loaderData.price)} · thriftsbyalisha` },
         ]
-      : [{ title: "Item unavailable — thriftsbyalisha" }, { name: "robots", content: "noindex" }],
+      : [{ title: "Item unavailable — thriftsbyalisha" }, { name: "description", content: "This thrifted piece is unavailable." }, { property: "og:title", content: "Item unavailable — thriftsbyalisha" }, { property: "og:description", content: "This thrifted piece is unavailable." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }, { name: "robots", content: "noindex" }],
   }),
   component: ItemPage,
 });
