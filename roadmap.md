@@ -6,5 +6,6 @@
 - [x] Teams & Permissions member list with on/off access controls enforced by backend permissions.
 - [x] Storefront chat, realtime team inbox, Website Chat leads and canned replies.
 - [ ] Complete signed-in admin workflow checks: requesting account has no staff role; owner must grant shop access or approve testing as a staff account. Rule tests pass and storefront chat is verified.
+- [ ] Verify simultaneous checkout through the live shop; browser sandbox reset interrupted this check, so the sales lock has only source review and rule-test coverage.
 
 Shopify connection was declined; retain the current Lovable Cloud shop.
