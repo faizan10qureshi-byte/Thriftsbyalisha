@@ -29,6 +29,13 @@
       "when": 1792608640791,
       "tag": "0003_harden_order_transitions_and_bag_ownership",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792650690936,
+      "tag": "0004_scope_customer_access_to_shop_team",
+      "breakpoints": true
     }
   ]
 }

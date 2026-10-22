@@ -1,0 +1,1 @@
+ALTER POLICY "finance customers read" ON public.customers USING (public.is_staff(auth.uid()));
