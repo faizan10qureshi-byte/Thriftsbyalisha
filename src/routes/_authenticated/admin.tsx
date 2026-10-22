@@ -4,9 +4,10 @@ import { HangerLoader } from "@/components/site/bits";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
+import { pageHead } from "@/lib/page-head";
 
 export const Route = createFileRoute("/_authenticated/admin")({
-  head: () => ({ meta: [{ title: "Dashboard — thriftsbyalisha" }, { name: "robots", content: "noindex" }] }),
+  head: () => pageHead("Team dashboard", "Manage thriftsbyalisha shop operations.", true),
   component: AdminLayout,
 });
 
@@ -32,7 +33,7 @@ function AdminLayout() {
       <div className="flex min-h-screen items-center justify-center px-4">
         <div className="max-w-sm rounded-2xl border bg-card p-8 text-center shadow-soft">
           <h1 className="text-3xl font-semibold">Team only</h1>
-          <p className="mt-2 text-sm text-muted-foreground">{user?.email} doesn't have dashboard access yet. Ask the owner to add you in Settings.</p>
+          <p className="mt-2 text-sm text-muted-foreground">{user?.email} doesn't have dashboard access yet. Ask the owner to add you in Teams & Permissions.</p>
           <div className="mt-5 flex justify-center gap-2">
             <Button asChild variant="outline"><Link to="/">Storefront</Link></Button>
             <Button onClick={() => supabase.auth.signOut()}>Sign out</Button>
